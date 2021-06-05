@@ -139,17 +139,30 @@ summary(data.combined[1:891,'Age']) # Summary of train data set for Age.
 # and age.
 
 ggplot(data.combined[1:891,], aes(x = Age, fill = Survived))+ 
-  facet_wrap(~Sex + ~Pclass)+ 
-  geom_bar(width = 0.5)+ 
-  xlab('Title')+ 
+  facet_wrap(~Sex + Pclass)+ 
+  geom_histogram(binwidth = 10)+ 
+  xlab('Age')+ 
   ylab('Total Count')+ 
   labs(fill = 'Survived')
+data.combined$title <- as.character(data.combined$title)
+
+# Validates that the 'Master.' is a good proxy for Male Children
+boys <- data.combined[which(data.combined$title == "Master."),]
+summary(boys$Age)
 
 
+# We know that 'Miss.' is a lot more complicated, Lets examine further
+misses <- data.combined[which(data.combined$title == 'Miss.'),]
+summary(misses$Age)
 
 
-
-
+ggplot(misses[misses$Survived != "None",], aes(x = Age, fill = Survived))+
+  facet_wrap(~Pclass)+
+  geom_histogram(binwidth = 5)+
+  ggtitle("Age of 'Miss.' by 'Pclass'")
+  xlab("Age")+
+  ylab("Total Count")+
+  labs("Survived")
 
 
 
