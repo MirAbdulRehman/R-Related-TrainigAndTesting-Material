@@ -115,11 +115,35 @@ ggplot(data.combined[1:891,], aes(x = title, fill = Survived))+
   labs(fill = "Survived")
 
 
+# what is the distribution of females and males across train and test?
+table(data.combined$Sex)
 
 
+# Visualizing the 3-way relationship between Sex, Pclass and Surivuved,
+# compare to analyse
+ggplot(data.combined[1:891,], aes(x = Sex, fill = Survived))+ 
+  geom_bar(width = 0.5)+ 
+  facet_wrap(~Pclass)+ 
+  xlab('Title')+ 
+  ylab('Total Count')+ 
+  labs(fill = 'Survived')
 
 
+# Age and Sex seems pretty important as derived from Analysis of title, lets take
+# a look at the distributions of age over the entire data set.
 
+summary(data.combined$Age)
+summary(data.combined[1:891,'Age']) # Summary of train data set for Age.
+
+# Just to be thorough, take a look at survival rates broken out by sex, survived
+# and age.
+
+ggplot(data.combined[1:891,], aes(x = Age, fill = Survived))+ 
+  facet_wrap(~Sex + ~Pclass)+ 
+  geom_bar(width = 0.5)+ 
+  xlab('Title')+ 
+  ylab('Total Count')+ 
+  labs(fill = 'Survived')
 
 
 
