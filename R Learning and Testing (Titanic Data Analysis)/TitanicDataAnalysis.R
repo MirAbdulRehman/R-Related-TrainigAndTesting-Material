@@ -100,7 +100,7 @@ for (i in 1:nrow(data.combined)) {
   titles <- c(titles, extractTitle(data.combined[i,"Name"]))
 }
 
-data.combined$title <- as.factor(titles)
+data.combined$Title <- as.factor(titles)
 
 
 # Since we only have survived labels from our training set,
@@ -159,10 +159,44 @@ summary(misses$Age)
 ggplot(misses[misses$Survived != "None",], aes(x = Age, fill = Survived))+
   facet_wrap(~Pclass)+
   geom_histogram(binwidth = 5)+
-  ggtitle("Age of 'Miss.' by 'Pclass'")
+  ggtitle("Age of 'Miss.' by 'Pclass'")+
   xlab("Age")+
   ylab("Total Count")+
-  labs("Survived")
+  labs(fill = 'Survived')
+
+
+# Appears that female children have different survival rate,
+# could be a candidate for feature engineering later.
+misses.alone <- misses[which(misses$SibSp == 0 & misses$Parch == 0),]
+summary(misses.alone$Age)
+length(which(misses.alone$Age <= 14.5))
+
+
+# Moving on to SibSp variable, summerize the variable.
+summary(data.combined$SibSp)
+
+
+# Can we treat SibSp as factor?
+length(unique(data.combined$SibSp))
+
+data.combined$SibSp <- as.factor(data.combined$SibSp)
+
+# We believe title is predictive, Visualize survival rates by sibsp, pclass and
+# title.
+
+ggplot(data.combined[1:891,], aes(x = SibSp, fill = Survived))+
+  stat_count(width = 1)+      # Use stat_count() for graph display.
+  facet_wrap(~Pclass + Title)+
+  ggtitle('Pclass, Title')+
+  xlab('SibSp')+
+  ylab('Total Count')+
+  ylim(0,300)+
+  labs(fill = "Survived")
+
+
+
+
+
 
 
 
