@@ -192,8 +192,36 @@ ggplot(data.combined[1:891,], aes(x = SibSp, fill = Survived))+
   ylab('Total Count')+
   ylim(0,300)+
   labs(fill = "Survived")
-  
 
+
+# Treat the Parch variable as a factor and Visualize
+data.combined$Parch <- as.factor(data.combined$Parch)
+
+ggplot(data.combined[1:891,], aes(x = Parch, fill = Survived))+
+  stat_count(width = 1)+
+  facet_wrap(~Pclass + Title)+
+  ggtitle('Pclass , Title')+
+  xlab('Parch')+
+  ylab('Total Count')+
+  labs('Survived')
+
+
+# Let's try feature engineering. what about creating a family size feature?
+temp.Sibsp <- c(train$SibSp, test$SibSp)
+temp.Parch <- c(train$Parch, test$Parch)
+
+data.combined$Family.size <- as.factor(temp.Sibsp + temp.Parch + 1)
+
+
+# Visualize the data to see if it is predictive.
+
+ggplot(data.combined[1:891,], aes(x = Family.size, fill = Survived))+
+  stat_count(width = 1)+  # Count the total cases in each x position
+  facet_wrap(~Pclass + Title)+
+  xlab('Family Size')+
+  ylab('Total Count')+
+  ylim(0,300)+  # Setting the limit of Y-axis to 300.
+  labs('Survived')
 
 
 
