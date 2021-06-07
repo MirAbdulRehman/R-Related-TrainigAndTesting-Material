@@ -224,7 +224,7 @@ ggplot(data.combined[1:891,], aes(x = Family.size, fill = Survived))+
   labs('Survived')
 
 
-
+# Take a look at Ticket variable
 
 
 
