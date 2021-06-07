@@ -106,8 +106,8 @@ data.combined$Title <- as.factor(titles)
 # Since we only have survived labels from our training set,
 # only use the first 891 rows.
 
-ggplot(data.combined[1:891,], aes(x = title, fill = Survived))+
-  geom_bar(binwidth = 0.5)+
+ggplot(data.combined[1:891,], aes(x = Title, fill = Survived))+
+  stat_count(width = 0.5)+ # use to count the cases at each x position.
   facet_wrap(~Pclass)+
   ggtitle("Pclass")+
   xlab("Title")+
@@ -122,7 +122,7 @@ table(data.combined$Sex)
 # Visualizing the 3-way relationship between Sex, Pclass and Surivuved,
 # compare to analyse
 ggplot(data.combined[1:891,], aes(x = Sex, fill = Survived))+ 
-  geom_bar(width = 0.5)+ 
+  stat_count(width = 0.5)+  # stat_count counts the number of cases at each x position
   facet_wrap(~Pclass)+ 
   xlab('Title')+ 
   ylab('Total Count')+ 
@@ -140,7 +140,7 @@ summary(data.combined[1:891,'Age']) # Summary of train data set for Age.
 
 ggplot(data.combined[1:891,], aes(x = Age, fill = Survived))+ 
   facet_wrap(~Sex + Pclass)+ 
-  geom_histogram(binwidth = 10)+ 
+  geom_histogram(binwidth = 10)+ # Using geom_histogram to show total number of people
   xlab('Age')+ 
   ylab('Total Count')+ 
   labs(fill = 'Survived')
@@ -152,13 +152,13 @@ summary(boys$Age)
 
 
 # We know that 'Miss.' is a lot more complicated, Lets examine further
-misses <- data.combined[which(data.combined$title == 'Miss.'),]
+misses <- data.combined[which(data.combined$Title == 'Miss.'),]
 summary(misses$Age)
 
 
 ggplot(misses[misses$Survived != "None",], aes(x = Age, fill = Survived))+
   facet_wrap(~Pclass)+
-  geom_histogram(binwidth = 5)+
+  geom_histogram(binwidth = 5)+ # geom_histogram is use to show the distribution across levels of categorical variable.
   ggtitle("Age of 'Miss.' by 'Pclass'")+
   xlab("Age")+
   ylab("Total Count")+
@@ -185,7 +185,7 @@ data.combined$SibSp <- as.factor(data.combined$SibSp)
 # title.
 
 ggplot(data.combined[1:891,], aes(x = SibSp, fill = Survived))+
-  stat_count(width = 1)+      # Use stat_count() for graph display.
+  stat_count(width = 1)+ # Use stat_count to count number of cases at each x point.
   facet_wrap(~Pclass + Title)+
   ggtitle('Pclass, Title')+
   xlab('SibSp')+
@@ -194,6 +194,34 @@ ggplot(data.combined[1:891,], aes(x = SibSp, fill = Survived))+
   labs(fill = "Survived")
 
 
+# Treat the Parch variable as a factor and Visualize
+data.combined$Parch <- as.factor(data.combined$Parch)
+
+ggplot(data.combined[1:891,], aes(x = Parch, fill = Survived))+
+  stat_count(width = 1)+
+  facet_wrap(~Pclass + Title)+
+  ggtitle('Pclass , Title')+
+  xlab('Parch')+
+  ylab('Total Count')+
+  labs('Survived')
+
+
+# Let's try feature engineering. what about creating a family size feature?
+temp.Sibsp <- c(train$SibSp, test$SibSp)
+temp.Parch <- c(train$Parch, test$Parch)
+
+data.combined$Family.size <- as.factor(temp.Sibsp + temp.Parch + 1)
+
+
+# Visualize the data to see if it is predictive.
+
+ggplot(data.combined[1:891,], aes(x = Family.size, fill = Survived))+
+  stat_count(width = 1)+  # Count the total cases in each x position
+  facet_wrap(~Pclass + Title)+
+  xlab('Family Size')+
+  ylab('Total Count')+
+  ylim(0,300)+  # Setting the limit of Y-axis to 300.
+  labs('Survived')
 
 
 
