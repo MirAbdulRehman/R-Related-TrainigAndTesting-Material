@@ -218,6 +218,7 @@ data.combined$Family.size <- as.factor(temp.Sibsp + temp.Parch + 1)
 ggplot(data.combined[1:891,], aes(x = Family.size, fill = Survived))+
   stat_count(width = 1)+  # Count the total cases in each x position
   facet_wrap(~Pclass + Title)+
+  ggtitle('Pclass, Title')+
   xlab('Family Size')+
   ylab('Total Count')+
   ylim(0,300)+  # Setting the limit of Y-axis to 300.
@@ -225,11 +226,35 @@ ggplot(data.combined[1:891,], aes(x = Family.size, fill = Survived))+
 
 
 # Take a look at Ticket variable
+str(data.combined$Ticket)
+
+
+# Displaying the first 20.
+data.combined$Ticket[1:20]
+
+
+# There's no immediately apparent structure in the data, let's see if we can find some.
+# well start taking a look at just the first character for each.
+ticket.first.char <- ifelse(data.combined$Ticket == ""," ", substr(data.combined$Ticket,1,1))
+unique(ticket.first.char)
+
+
+# We can make a factor for analysis purposes and visualization.
+data.combined$Ticket.First.char <- as.factor(ticket.first.char)
+
+
+# First a high level plot of data
+ggplot(data.combined[1:891,], aes(x = Ticket.First.char, fill = Survived))+
+  geom_bar()+
+  ggtitle("Survivability by Ticket First Character")+
+  xlab('Ticket.First.Char')+
+  ylab('Total Count')+
+  ylim(0,350)+
+  labs(fill = "Survived")
 
 
 
 
-
-
+ 
 
 
