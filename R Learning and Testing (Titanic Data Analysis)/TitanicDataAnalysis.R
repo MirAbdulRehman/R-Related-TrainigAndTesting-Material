@@ -1,5 +1,4 @@
 
-
 # Load Raw Data
 train <- read.csv('train.csv', header = TRUE)
 test <- read.csv('test.csv', header = TRUE)
@@ -144,10 +143,10 @@ ggplot(data.combined[1:891,], aes(x = Age, fill = Survived))+
   xlab('Age')+ 
   ylab('Total Count')+ 
   labs(fill = 'Survived')
-data.combined$title <- as.character(data.combined$title)
+data.combined$Title <- as.character(data.combined$Title)
 
 # Validates that the 'Master.' is a good proxy for Male Children
-boys <- data.combined[which(data.combined$title == "Master."),]
+boys <- data.combined[which(data.combined$Title == "Master."),]
 summary(boys$Age)
 
 
