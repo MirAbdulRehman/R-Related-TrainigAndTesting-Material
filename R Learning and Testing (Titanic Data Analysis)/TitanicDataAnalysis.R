@@ -251,9 +251,29 @@ ggplot(data.combined[1:891,], aes(x = Ticket.First.char, fill = Survived))+
   ylim(0,350)+
   labs(fill = "Survived")
 
+# Tickets seems like it might be predictive, drill down a bit
+ggplot(data.combined[1:891,], aes(x = Ticket.First.char, fill = Survived))+
+  geom_bar()+
+  facet_wrap(~Pclass)+
+  ggtitle('Pclass')+
+  xlab('Ticket.First.Char')+
+  ylab('Total Count')+
+  ylim(0,150)+
+  labs(fill = 'Survived')
 
 
 
- 
+# Lastly, see if there is a pattern when using combination of Pclass and Title
+ggplot(data.combined[1:891,], aes(x = Ticket.First.char, fill = Survived))+
+  geom_bar()+
+  facet_wrap(~Pclass + Title)+
+  ggtitle("Pclass and Title")+
+  xlab('Ticket.First.Char')+
+  ylab('Total Count')+
+  ylim(0:200)+
+  labs(fill = 'Survived')
+
+
+
 
 
