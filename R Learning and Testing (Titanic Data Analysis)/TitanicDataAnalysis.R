@@ -270,8 +270,34 @@ ggplot(data.combined[1:891,], aes(x = Ticket.First.char, fill = Survived))+
   ggtitle("Pclass and Title")+
   xlab('Ticket.First.Char')+
   ylab('Total Count')+
-  ylim(0:200)+
+  ylim(0,200)+
   labs(fill = 'Survived')
+
+# Next up - Fares Titanic Passengers Paid
+summary(data.combined$Fare)
+length(unique(data.combined$Fare))
+
+
+# Can't treat Fare as factor, treat as numeric & visualize with histogram
+ggplot(data.combined, aes(x = Fare))+
+  geom_histogram(binwidth = 5)+
+  ggtitle("Combined Fare Distribution")+
+  xlab('Fare')+
+  ylab('Total COunt')+
+  ylim(0, 200)
+
+# Lets see if Fare have predictive power.
+ggplot(data.combined[1:891,], aes(x = Fare , fill = Survived))+
+  geom_histogram(binwidth = 5)+
+  facet_wrap(~Pclass + Title)+
+  ggtitle('Pclass and Title')+
+  xlab('Fare')+
+  ylab('Total Count')+
+  ylim(0, 50)+
+  labs(fill = 'Survived')
+
+
+#****Stopped at Fare variable due to lake of Useful data for analysis*****#
 
 
 
