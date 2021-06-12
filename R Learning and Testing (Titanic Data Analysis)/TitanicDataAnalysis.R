@@ -122,8 +122,9 @@ table(data.combined$Sex)
 # compare to analyse
 ggplot(data.combined[1:891,], aes(x = Sex, fill = Survived))+ 
   stat_count(width = 0.5)+  # stat_count counts the number of cases at each x position
-  facet_wrap(~Pclass)+ 
-  xlab('Title')+ 
+  facet_wrap(~Pclass)+
+  ggtitle('Survivability Basied on Gender and Class')+
+  xlab('Gender')+ 
   ylab('Total Count')+ 
   labs(fill = 'Survived')
 
@@ -297,7 +298,57 @@ ggplot(data.combined[1:891,], aes(x = Fare , fill = Survived))+
   labs(fill = 'Survived')
 
 
-#****Stopped at Fare variable due to lake of Useful data for analysis*****#
+# Analysis of Cabin Variable
+str(data.combined$Cabin)
+
+# Displaying first 100 characters of Cabin
+data.combined$Cabin[1:100]
+
+
+# Replacing Empty cabin with "U"
+data.combined[which(data.combined$Cabin == ""),'Cabin'] <- 'U'
+data.combined$Cabin[1:100]
+
+
+# Take a look at just the first character as a Factor
+cabin.firt.char <- as.factor(substr(data.combined$Cabin, 1, 1))
+str(cabin.firt.char)
+levels(cabin.firt.char)
+
+
+# Adding to a combine data set and plot
+data.combined$Cabin.First.Char <- cabin.firt.char
+
+
+# High level plot
+ggplot(data.combined[1:891,], aes(x = Cabin.First.Char, fill = Survived))+
+  geom_bar()+
+  ggtitle('Survivability by Cabin First Char')+
+  xlab('Cabin.First.Char')+
+  ylab('Total Count')+
+  labs(fill = 'Survived')
+
+
+
+
+#********************************Put on hold*******************************#
+
+
+#*************************************************
+#*************************************************
+#        Video #4 - Exploratory Modeling
+#*************************************************
+#*************************************************
+
+library(randomForest)
+
+
+# First Training Data set
+rf.train.1 <- data.combined[1:891, c('Pclass', 'Title')]
+rf.label <- as.factor(train$Survived)
+
+
+
 
 
 
