@@ -347,6 +347,29 @@ library(randomForest)
 rf.train.1 <- data.combined[1:891, c('Pclass', 'Title')]
 rf.label <- as.factor(train$Survived)
 
+set.seed(1234)
+rf.1 <- randomForest(x = rf.train.1, y = rf.label, importance = TRUE, ntree = 1000)
+rf.1
+varImpPlot(rf.1)
+
+
+# Training a randomForest using Pclass, Title and SibSp.
+rf.train.2 <- data.combined[1:891, c('Pclass', 'Title', 'SibSp')]
+
+set.seed(1234)
+rf.2 <- randomForest(x = rf.train.2, y = rf.label, importance = TRUE, ntree = 1000)
+rf.2
+varImpPlot(rf.2)
+
+
+
+# Training a randomForest using Pclass, Title, SibSp and ParCh
+rf.train.3 <- data.combined[1:891, c('Pclass','Title','SibSp','Parch')]
+
+set.seed(1234)
+rf.3 <- randomForest(x = rf.train.3, y = rf.label, importance = TRUE, ntree = 1000)
+rf.3
+varImpPlot(rf.3)
 
 
 
