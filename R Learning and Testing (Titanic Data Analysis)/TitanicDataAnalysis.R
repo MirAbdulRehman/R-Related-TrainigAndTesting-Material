@@ -34,7 +34,6 @@ library(ggplot2)
 # Hypothesis - Rich people survive at a higher rate
 train$Pclass <- as.factor(train$Pclass)
 
-
 ggplot(train, aes(x = Pclass, fill = factor(Survived))) +
   stat_count(width = 0.5) +
   xlab("Pclass") +
@@ -172,7 +171,7 @@ summary(misses.alone$Age)
 length(which(misses.alone$Age <= 14.5))
 
 
-# Moving on to SibSp variable, summerize the variable.
+# Moving on to SibSp variable, summarize the variable.
 summary(data.combined$SibSp)
 
 
@@ -352,6 +351,7 @@ rf.1 <- randomForest(x = rf.train.1, y = rf.label, importance = TRUE, ntree = 10
 rf.1
 varImpPlot(rf.1)
 
+str(data.combined)
 
 # Training a randomForest using Pclass, Title and SibSp.
 rf.train.2 <- data.combined[1:891, c('Pclass', 'Title', 'SibSp')]
@@ -372,8 +372,53 @@ rf.3
 varImpPlot(rf.3)
 
 
+# Training a randomForest using Pclass, Title and Family.size
+rf.train.4 <- data.combined[1:891, c('Pclass', 'Title', 'Family.size')]
+
+set.seed(1234)
+rf.4 <- randomForest(x = rf.train.4, y = rf.label, importance = TRUE, ntree = 1000)
+rf.4
+varImpPlot(rf.4)
 
 
 
+# Training a randomForest using Pclass, Title , SibSp, and Family.size
+rf.train.5 <- data.combined[1:891, c('Pclass', 'Title', 'SibSp', 'Family.size')]
+
+set.seed(1234)
+rf.5 <- randomForest(x = rf.train.5, y = rf.label, importance = TRUE, ntree = 1000)
+rf.5
+varImpPlot(rf.5)
+
+
+# Training a randomForest using Pclass, Title, Parch and Family.size
+rf.train.6 <- data.combined[1:891, c('Pclass', 'Title', 'Parch', 'Family.size')]
+
+set.seed(1234)
+rf.6 <- randomForest(x = rf.train.6, y = rf.label, importance = TRUE, ntree = 1000)
+rf.6
+varImpPlot(rf.6)
+
+
+# Training a randomForest using Pclass, Title, SibSp, Parch and Sex.
+rf.train.7 <- data.combined[1:891, c('Pclass', 'Title', 'SibSp', 'Parch', 'Sex')]
+
+set.seed(1234)
+rf.7 <- randomForest(x = rf.train.7 , y = rf.label, importance = TRUE, ntree = 1000)
+rf.7
+varImpPlot(rf.7)
+
+
+# Training a randomForest using Pclass, Title, Family.size and Sex.
+rf.train.8 <- data.combined[1:891, c('Pclass', 'Title', 'Family.size', 'Sex')]
+
+set.seed(1234)
+rf.8 <- randomForest(x = rf.train.8 , y = rf.label, importance = TRUE, ntree = 1000)
+rf.8
+varImpPlot(rf.8)
+
+
+#****Best Predicting Features with Max Probability****#
+#****and Minimum error rate rf.8****#
 
 
