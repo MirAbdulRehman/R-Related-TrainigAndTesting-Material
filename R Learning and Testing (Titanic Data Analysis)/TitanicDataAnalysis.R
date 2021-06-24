@@ -422,3 +422,17 @@ varImpPlot(rf.8)
 #****and Minimum error rate rf.8****#
 
 
+#*************************************************
+#*************************************************
+#        Video #5 - Cross Validation
+#*************************************************
+#*************************************************
+
+
+# Before we jump into feature engineering we need to establish a methodology
+# for estimating our error rate on the test set (i.e., unseen data). This is
+# critical, for without this we are more likely to overfit. Let's start with a
+# submitionb of rf.8 to kaggle to see if our OOB error estimate is accurate.
+
+
+
