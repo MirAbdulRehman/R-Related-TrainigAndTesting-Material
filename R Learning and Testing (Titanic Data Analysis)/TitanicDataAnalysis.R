@@ -435,4 +435,98 @@ varImpPlot(rf.8)
 # submitionb of rf.8 to kaggle to see if our OOB error estimate is accurate.
 
 
+# Subset our test recoards and Features.
+test.submit.df <- data.combined[892:1309,c('Pclass','Title','Family.size','Sex')]
+
+
+# Make Predictions
+rf.8.preds <- predict(rf.8, test.submit.df)
+table(rf.8.preds)
+
+
+# Write out a CSV file for SUbmission for Kaggle
+
+submit.df <- data.frame(PassengerId = rep(892:1309), Survived = rf.8.preds)
+
+write.csv(submit.df, file = 'TDA_SUB_20210730_1.csv', row.names = FALSE)
+
+
+# My Submission Scored 0.77033, but the OOB Predicted that we should score 0.8339.
+# Lets look in to Cross-Validation using caret package to see if we can get more
+# accuracy estimates
+
+library(caret)
+library(doSNOW)
+
+# Research has shown that 10-fold CV repeated 10 times is the best place to start,
+# However there are no hard and fast rules - this is where the experience of the
+# Data Scientist (i.e.., the 'art') comes in to play. We'll start with 10-fold CV,
+# repeated 10 times and see how it goes.
+
+
+# Leverage caret to create 100 total folds, but ensure that the ratio of those that
+# Survived and perished in each fold matches the overall training set. This is known as
+# Stratified Core validation and generally provide better results.
+
+set.seed(2348)
+cv.10.folds <- createMultiFolds(rf.label, k = 10, times = 10)
+
+
+# Check the Stratification
+table(rf.label)  # 342/549 = 0.6229508 = 62.29%
+
+table(rf.label[cv.10.folds[[33]]]) # 307/494 = 0.6214575 = 62.14%
+
+
+# Set up caret's trainControl object per above.
+ctrl.1 <- trainControl(method = 'repeatedcv', number = 10, repeats = 10, index = cv.10.folds)
+
+
+# Set up doSNOW package for multi-core training. This is going to be helpful as
+# your going to be train a lot of trees.
+
+cl <- makeCluster(6, type = 'SOCK')
+registerDoSNOW(cl)
+
+
+# Set seed for reproducibility and train.
+set.seed(34324)
+rf.8.cv.1 <- train(x = rf.train.8 , y = rf.label, method = 'rf', tuneLength = 3,
+                   ntree = 1000, trControl = ctrl.1)
+
+
+# Shutdown Cluster
+stopCluster(cl)
+
+# Check out Results
+rf.8.cv.1     # 0.8229 = 82.29%
+
+# Check the previous randomForest Result
+rf.8          # 100-16.61 = 83.39%
+
+
+# The above is only slightly more pessimistic than the rf.8 OOB prediction but,
+# not pessimistic enough. Let's try 5-fold CV repeated 10 times.
+
+set.seed(5983)
+cv.5.folds <- createMultiFolds(rf.label, k = 5, times = 10)
+
+ctrl.2 <- trainControl(method = 'repeatedcv', number = 5, repeats = 10, index = cv.5.folds)
+
+cl <- makeCluster(6, type = 'SOCK')
+registerDoSNOW(cl)
+
+set.seed(89472)
+rf.8.cv.2 <- train(x = rf.train.8, y = rf.label, method = 'rf', tuneLength = 3,
+                   ntree = 1000, trControl = ctrl.2)
+
+# Shutdown Cluster
+stopCluster(cl)
+
+
+# Check out Results
+rf.8.cv.2     # 0.8245 = 82.45%
+
+# Check the previous randomForest Result
+rf.8          # 100-16.61 = 83.39%
 
