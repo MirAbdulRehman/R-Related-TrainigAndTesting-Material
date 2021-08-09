@@ -530,3 +530,191 @@ rf.8.cv.2     # 0.8245 = 82.45%
 # Check the previous randomForest Result
 rf.8          # 100-16.61 = 83.39%
 
+
+# Let's try 3-fold CV repeated 10 times.
+
+set.seed(5983)
+cv.3.folds <- createMultiFolds(rf.label, k = 3, times = 10)
+
+ctrl.3 <- trainControl(method = 'repeatedcv', number = 3, repeats = 10, index = cv.3.folds)
+
+cl <- makeCluster(6, type = 'SOCK')
+registerDoSNOW(cl)
+
+set.seed(89472)
+rf.8.cv.3 <- train(x = rf.train.8, y = rf.label, method = 'rf', tuneLength = 3,
+                   ntree = 1000, trControl = ctrl.3)
+
+# Shutdown Cluster
+stopCluster(cl)
+
+
+# Check out Results
+rf.8.cv.3     # 0.8207 = 82.07%
+
+# Check the previous randomForest Result
+rf.8          # 100-16.61 = 83.39%
+
+
+
+#****Best Accuracy that we got after cross-validation****#
+#****rf.8.cv.2 with the accuracy rate of 82.45% ****#
+
+
+#*************************************************
+#*************************************************
+#        Video #6 - Exploratory Modeling - 2
+#*************************************************
+#*************************************************
+
+
+# Let's use a single decision tree to better understand what's going on with our
+# features. Obviously Random Forests are far more powerful than single trees,
+# but the single tree have the advantage of being easier to understand.
+library(rpart)
+library(rpart.plot)
+
+
+# Creating a Utility Function
+
+rpart.cv <- function(seed, training, labels, ctrl){
+  
+  cl <- makeCluster(6, type = 'SOCK')
+  registerDoSNOW(cl)
+  
+  set.seed(seed)
+  
+  # Leverage formula interface for training
+  
+  rpart.cv <- train(x = training, y = labels, method = 'rpart', tuneLength = 30,
+                     trControl = ctrl)
+   
+  # Shutdown Cluster
+  stopCluster(cl)
+  
+  return(rpart.cv)
+  
+}
+
+
+# Grab Features
+features <- c('Pclass', 'Family.size', 'Title', 'Sex')
+
+rpart.train.1 <- data.combined[1:891,features]
+
+# Run CV and Check out results
+rpart.1.cv.1 <- rpart.cv(94622, rpart.train.1, rf.label, ctrl.3)
+rpart.1.cv.1
+
+
+# Plot
+
+prp(rpart.1.cv.1$finalModel, type = 0, extra = 1, under = TRUE)
+
+
+
+# The Plot brings out some interesting lines of investigation, Namely:
+#   1 - Titles of "Mr." and "Other" are predicted to perish at an overall
+#       accuracy rate of 83.2%
+#   2 - Titles of "Master" ,"Miss." & "Mrs." in 1st & 2nd class are predicted to
+#       survive at an overall accuracy rate of 94.9%
+#   3 - Titles of "Master" ,"Miss." & "Mrs." in 3rd class with Family.size equal
+#       to 5, 6, 8 & 11 are predicted to perish with 100% accuracy.
+#   4 - Titles of "Master" ,"Miss." & "Mrs." in 3rd class with Family.size not
+#       equal to 5, 6, 8 & 11 are predicted to survive with 59.6% accuracy.
+
+
+# Both rpart and rf confirms that title is important , let's investigate further.
+table(data.combined$Title)
+
+library(stringr)
+
+# Parse out the last name and title
+data.combined[1:25, 'Name']
+
+name.splits <- str_split(data.combined$Name, ",")
+name.splits[1]
+
+last.names <- sapply(name.splits, "[", 1)
+last.names[1:10]
+
+
+# Add last name in to data name in case we find it useful later.
+data.combined$last.names <- last.names
+
+
+# Now for Titles
+name.splits <- str_split(sapply(name.splits, "[", 2), " ")
+titles <- sapply(name.splits, "[", 2)
+unique(titles)
+
+# What's up with a title of 'the'
+data.combined[which(titles == "the"),]
+
+
+# Re-map titles to be more exact
+titles[titles %in% c('Dona.', 'the')] <- "Lady."
+titles[titles %in% c("Ms.","Mlle.")] <- "Miss."
+titles[titles == "Mme."] <- "Mrs."
+titles[titles %in% c("Jonkheer.","Don.")] <- "Sir."
+titles[titles %in% c('Col.','Capt.','Major.')] <- 'Officer'
+table(titles)
+
+
+# Make titles as factor and store
+data.combined$New.Titles <- as.factor(titles)
+
+
+# Visualize new version of titles
+ggplot(data.combined[1:891,], aes(x = New.Titles, fill = Survived)) +
+  geom_bar()+
+  facet_wrap(~Pclass)+
+  ggtitle("Survival Rate for New.Titles by Pclass.")
+
+
+# Collapse Title based on Visual analysis
+indexes <- which(data.combined$New.Titles == 'Lady.')
+data.combined$New.Titles[indexes] <- 'Mrs.'
+
+indexes <- which(data.combined$New.Titles == "Dr." |
+                 data.combined$New.Titles == "Rev." |
+                 data.combined$New.Titles == "Sir." |
+                 data.combined$New.Titles == "Officer")
+data.combined$New.Titles[indexes] <- "Mr."
+
+
+# Visualize
+ggplot(data.combined[1:891,], aes(x = New.Titles, fill = Survived)) +
+  geom_bar()+
+  facet_wrap(~Pclass)+
+  ggtitle("Survival Rate for New.Titles by Pclass.")
+
+
+# Grab Features.
+features <- c("Pclass","New.Titles","Family.size")
+rpart.tarin.2 <- data.combined[1:891,features]
+
+# Run CV and Check out Results
+rpart.2.cv.1 <- rpart.cv(94622, rpart.tarin.2, rf.label, ctrl.3)
+rpart.2.cv.1
+
+
+#------------- Random Forest Test-----------#
+# Training a randomForest using Pclass, Title, Family.size and Sex.
+#rf.train.9 <- data.combined[1:891, c('Pclass', 'New.Titles', 'Family.size')]
+
+#set.seed(1234)
+#rf.9 <- randomForest(x = rf.train.9 , y = rf.label, importance = TRUE, ntree = 1000)
+#rf.9
+#varImpPlot(rf.9)
+#-------------------------------------------#
+
+# Plot
+prp(rpart.2.cv.1$finalModel, type = 0, extra = 1, under = TRUE)
+
+
+
+
+
+
+
