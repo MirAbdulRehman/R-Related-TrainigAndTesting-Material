@@ -798,6 +798,47 @@ summary(first.mr.df$Avg.fare)
 data.combined[is.na(data.combined$Avg.fare),]
 
 # Get records for similar passengers and summery Avg.
+indexes <- with(data.combined, which(Pclass == '3' & Title == 'Mr.' &
+                                     Family.size == 1 & Ticket != '3701'))
+similar.na.passangers <- data.combined[indexes,]
+summary(similar.na.passangers$Avg.fare)
+
+# Using Median since close to Mean and a little higher then Mean
+data.combined[is.na(avg.fare), 'Avg.fare'] <- 7.840
+
+# Leverage caret's preProcess function to  normalize data
+preproc.data.combined <- data.combined[,c('Ticket.party.size', 'Avg.fare')]
+preProc <- preProcess(preproc.data.combined, method = c('center','scale'))
+
+postProc.data.combined <- predict(preProc, preproc.data.combined)
+
+# Hypothesis refuted for all data
+cor(postProc.data.combined$Ticket.party.size, postProc.data.combined$Avg.fare)
+
+
+# How about for just 1st class all-up?
+indexes <- which(data.combined$Pclass == '1')
+cor(postProc.data.combined$Ticket.party.size[indexes],
+    postProc.data.combined$Avg.fare[indexes])
+
+# Let's see if our feature engineering has made any progress
+features <- c('Pclass', 'New.Titles', 'Ticket.party.size', 'Avg.fare')
+rpart.train.3 <- data.combined[1:891, features]
+
+# Run CV and check out results 
+rpart.3.cv.1 <- rpart.cv(94662, rpart.train.3, rf.label, ctrl.3)
+rpart.3.cv.1
+
+# Plot
+prp(rpart.3.cv.1$finalModel, type = 0, extra = 1, under = TRUE)
+
+
+#*************************************************
+#*************************************************
+#        Video #7 - Submission & Final Thoughts
+#*************************************************
+#*************************************************
+
 
 
 
