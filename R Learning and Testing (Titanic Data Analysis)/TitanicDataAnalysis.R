@@ -227,6 +227,7 @@ ggplot(data.combined[1:891,], aes(x = Family.size, fill = Survived))+
 # Take a look at Ticket variable
 str(data.combined$Ticket)
 
+data.combined$Sex <- as.factor(data.combined$Sex)
 
 # Displaying the first 20.
 data.combined$Ticket[1:20]
@@ -691,7 +692,7 @@ ggplot(data.combined[1:891,], aes(x = New.Titles, fill = Survived)) +
 
 
 # Grab Features.
-features <- c("Pclass","New.Titles","Family.size")
+features <- c("Pclass","New.Titles","Family.size","Sex")
 rpart.tarin.2 <- data.combined[1:891,features]
 
 # Run CV and Check out Results
@@ -701,7 +702,7 @@ rpart.2.cv.1
 
 #------------- Random Forest Test-----------#
 # Training a randomForest using Pclass, Title, Family.size and Sex.
-#rf.train.9 <- data.combined[1:891, c('Pclass', 'New.Titles', 'Family.size')]
+#rf.train.9 <- data.combined[1:891, c('Pclass', 'New.Titles', 'Family.size', 'Sex')]
 
 #set.seed(1234)
 #rf.9 <- randomForest(x = rf.train.9 , y = rf.label, importance = TRUE, ntree = 1000)
@@ -712,6 +713,91 @@ rpart.2.cv.1
 # Plot
 prp(rpart.2.cv.1$finalModel, type = 0, extra = 1, under = TRUE)
 
+
+# Dive in 1st Class "Mr."
+index.first.mr <- which(data.combined$New.Titles == "Mr." & data.combined$Pclass == "1")
+first.mr.df <- data.combined[index.first.mr,]
+summary(first.mr.df)
+
+
+# One Female?
+first.mr.df[first.mr.df$Sex == 'female',]
+
+
+# Updating New.Titles
+indexes <- which(data.combined$New.Titles == "Mr." &
+                 data.combined$Sex == 'female')
+data.combined$New.Titles[indexes] <- 'Mrs.'
+
+
+# Any other gender slit-ups?
+length(which(data.combined$Sex == 'female' &
+             (data.combined$New.Titles == 'Master.' |
+             data.combined$New.Titles == 'Mr.')))
+
+# Refresh Data Frame
+index.first.mr <- which(data.combined$New.Titles == 'Mr.' & data.combined$Pclass == '1')
+first.mr.df <- data.combined[index.first.mr,]
+
+# Let's look at surviving 1st Class 'Mr.'
+summary(first.mr.df[first.mr.df$Survived == '1',])
+View(first.mr.df[first.mr.df$Survived =='1',])
+
+
+# Taking a look at some of the high Fare's
+indexes <- which(data.combined$Ticket == 'PC 17755' |
+                 data.combined$Ticket == 'PC 17611' |
+                 data.combined$Ticket == '113760')
+View(data.combined[indexes,])
+
+
+# Visualize Survival rates for 1st class 'Mr.' by Fare
+ggplot(first.mr.df, aes(x = Fare, fill = Survived)) +
+  ggtitle("1st CLass 'Mr.' Survival Rates by Fare ") +
+  geom_density(alpha = 0.5)
+
+
+# Engineer Features based on all the passengers with the same ticket
+ticket.party.size <- rep(0, nrow(data.combined))
+avg.fare <- rep(0.0, nrow(data.combined))
+tickets <- unique(data.combined$Ticket)
+
+for (i in 1:length(tickets)) {
+  current.ticket <- tickets[i]
+  party.indexes <- which(data.combined$Ticket == current.ticket)
+  current.avg.fare <- data.combined[party.indexes[1],'Fare'] / length(party.indexes)
+  
+  for(k in 1:length(party.indexes)) {
+    ticket.party.size[party.indexes[k]] <- length(party.indexes)
+    avg.fare[party.indexes[k]] <- current.avg.fare
+  }
+}
+
+
+data.combined$Ticket.party.size <- ticket.party.size
+data.combined$Avg.fare <- avg.fare
+
+# Refresh 1st Class 'Mr.' dataframe
+first.mr.df <- data.combined[index.first.mr,]
+summary(first.mr.df)
+
+# Visualize New Features
+ggplot(first.mr.df[first.mr.df$Survived != 'None',], aes(x = Ticket.party.size, fill = Survived)) +
+  ggtitle("Survival Rate 1st Class 'Mr.' by Ticket.party.size") +
+  geom_density(alpha = 0.5)
+
+ggplot(first.mr.df[first.mr.df$Survived != 'None',], aes(x = Avg.fare, fill = Survived)) +
+  ggtitle("Survival Rate 1st Class 'Mr.' by Avg.Fare") +
+  geom_density(alpha = 0.5)
+
+
+# Hypothesis - Ticket.party.size is highly correlated with Avg.Fare
+summary(first.mr.df$Avg.fare)
+
+# One missing Value take a look
+data.combined[is.na(data.combined$Avg.fare),]
+
+# Get records for similar passengers and summery Avg.
 
 
 
