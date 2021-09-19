@@ -822,7 +822,7 @@ cor(postProc.data.combined$Ticket.party.size[indexes],
     postProc.data.combined$Avg.fare[indexes])
 
 # Let's see if our feature engineering has made any progress
-features <- c('Pclass', 'New.Titles', 'Ticket.party.size', 'Avg.fare')
+features <- c('Pclass', 'New.Titles', 'Family.size', 'Ticket.party.size', 'Avg.fare')
 rpart.train.3 <- data.combined[1:891, features]
 
 # Run CV and check out results 
@@ -839,6 +839,38 @@ prp(rpart.3.cv.1$finalModel, type = 0, extra = 1, under = TRUE)
 #*************************************************
 #*************************************************
 
+# 
+# Rpart Scores 0.83602
+
+# Subset our test records and features
+test.submit.df <- data.combined[892:1309, features]
+
+# Make Prediction
+rpart.3.preds <- predict(rpart.3.cv.1$finalModel, test.submit.df, type = "class")
+table(rpart.3.preds)
+
+# Write out a CSV file for submission to Kaggle
+data.frame(PassengerId = rep(892:1309), Survived = rpart.3.preds) -> submit.df
+
+write.csv(submit.df, file = "TDA_SUB_20210918_2.csv", row.names = FALSE)
+
+
+#
+# Random Forest Score 0.8339
+#
+
+c('Pclass', 'New.Titles', 'Ticket.party.size', 'Avg.fare') -> features
+rf.train.temp <- data.combined[1:891,features]
+
+set.seed(1234)
+rf.temp <- randomForest(x = rf.train.temp, y = rf.label, ntree= 1000)
+rf.temp
+
+test.submit.df <- data.combined[892:1309,features]
+
+# Make Prediction
+rf.preds <- predict(rf.temp, test.submit.df)
+table(rf.preds)
 
 
 
